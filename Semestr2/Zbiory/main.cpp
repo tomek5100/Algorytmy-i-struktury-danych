@@ -170,6 +170,7 @@ public:
 
     void Wypisz()
     {
+        //tutaj mogę co najwyżej zmienić żeby wypisywało odpowiednie elementy a nie 0/1 
         for (int i = 0; i < this->universeSize; i++)
         {
             cout << this->array[i] << " ";
@@ -190,19 +191,23 @@ int main()
     A.Insert(6);
     A.Insert(8);
 
-    B.Insert(0);
-    B.Insert(2);
-    B.Insert(4);
-    B.Insert(6);
-    B.Insert(8);
+    B.Insert(1);
+    B.Insert(3);
+    B.Insert(5);
+    B.Insert(7);
+    B.Insert(9);
 
     C = operator+(A, B);
 
     D = operator-(C, B);
 
+    cout << "A: ";
     A.Wypisz();
+    cout << "B: ";
     B.Wypisz();
+    cout << "C: ";
     C.Wypisz();
+    cout << "D: ";
     D.Wypisz();
 
     cout << "Czy D==A ? " << operator==(D, A) << endl;
