@@ -88,12 +88,15 @@ T BinaryHeap<T>::FindMin() const
 }
 
 template <typename T>
+//wstawia element do kolejki
 void BinaryHeap<T>::Enqueue(T element)
 {
+    //sprawdzamy czy mamy miejsce, jesli nie to zwiekszamy rozmiar
     if (count >= data.size())
         data.resize(count + 1);
     ++count;
 
+    //wstawiamy w odpowiednie miejsce, liść musi być większy od korzenia
     int i = count - 1;
     while ((i > 0) && (data[(i - 1) / 2] > element))
     {
@@ -104,8 +107,12 @@ void BinaryHeap<T>::Enqueue(T element)
 }
 
 template <typename T>
+//usuwa najmniejszy element z kontenera
 T BinaryHeap<T>::DequeueMin()
 {
+    //najmniejszy element znajduje sie na szczycie kopca, 
+    //usuwajac element mamy pusty wezel wiec musimy ją przepisać
+    //zachowujac warunki stogu, robimy to az dojdziemy do liscia
     if (count > 0)
     {
         T result = data[0];
