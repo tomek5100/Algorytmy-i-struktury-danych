@@ -20,11 +20,15 @@ template <typename T>
 class AddingVisitor : public Visitor<T>
 {
 public:
-    int sum = 0; // w tym polu pamiętamy policzoną sumę
-
+    int sum; // w tym polu pamiętamy policzoną sumę
+    AddingVisitor() : sum(0){};
     void Visit(int &i)
     {
         sum += i;
+    }
+    void MakeNull()
+    {
+        sum = 0;
     }
 };
 
@@ -242,36 +246,47 @@ int main()
     cout << "D: ";
     D.Wypisz();
 
-    cout << "Czy D==A ? " << operator==(D, A) << endl;
-    cout << "Czy D<=A ? " << operator<=(D, A) << endl;
-    cout << "Czy C==B ? " << operator==(C, B) << endl;
-    cout << "Czy B<=C ? " << operator<=(B, C) << endl;
+    // cout << "Czy D==A ? " << operator==(D, A) << endl;
+    //  inny sposób na użycie przeciążonego operatora:
+    cout << "Czy D == A: " << ((D == A) ? "Tak" : "Nie") << endl;
+    cout << "Czy D <= A: " << ((D <= A) ? "Tak" : "Nie") << endl;
+    cout << "Czy C == B: " << ((C == B) ? "Tak" : "Nie") << endl;
+    cout << "Czy B <= C: " << ((B <= C) ? "Tak" : "Nie") << endl;
 
     A.Insert(1);
-    cout << "Czy D==A ? " << operator==(D, A) << endl;
-    cout << "Czy D<=A ? " << operator<=(D, A) << endl;
+    A.Wypisz();
+    cout << "Czy D == A: " << ((D == A) ? "Tak" : "Nie") << endl;
+    cout << "Czy D <= A: " << ((D <= A) ? "Tak" : "Nie") << endl;
 
     // nowe testy
 
     A.Insert(5);
+    cout << "A: ";
+    A.Wypisz();
+
     AddingVisitor<int> v_A;
     A.Accept(v_A);
-    cout << "Obliczona suma: " << v_A.sum << endl;
-    // v_A.sum = 0;
-    //  wyzerować sumę
+    cout << "Obliczona suma A : " << v_A.sum << endl;
 
     SetAsArray E(10);
-    E = operator*(A, B);
+    // E = operator*(A, B);
+    // inny sposob na uzycie przeciążonego operatora
+    E = A * B;
 
     cout << "E: ";
     E.Wypisz();
 
     AddingVisitor<int> v_E;
     E.Accept(v_E);
-    cout << "Obliczona suma: " << v_E.sum << endl;
+    cout << "Obliczona suma E : " << v_E.sum << endl;
+    v_E.MakeNull();
+
     E.Withdraw(1);
+    cout << "E: ";
+    E.Wypisz();
+
     E.Accept(v_E);
-    cout << "Obliczona suma: " << v_E.sum << endl;
+    cout << "Obliczona suma E: " << v_E.sum << endl;
 
     return 0;
 }
