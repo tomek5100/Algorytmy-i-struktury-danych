@@ -1,0 +1,3 @@
+https://www.geeksforgeeks.org/reverse-a-linked-list/
+http://iswiki.if.uj.edu.pl/images/1/13/AiSD_06._ADT_Lista_wska%C5%BAnikowa.pdf
+https://pegaz.uj.edu.pl/pluginfile.php/3986720/mod_resource/content/1/ListaWskaznikowaS.pdf

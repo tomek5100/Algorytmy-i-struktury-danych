@@ -1,2 +1,6 @@
 Semestr1/ProjektZaliczeniowy
-Semestr1/ProjektZaliczeniowy
+*.exe
+*.exe.stackdump
+*.o
+*.x
+*.log
