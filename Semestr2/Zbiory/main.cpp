@@ -5,6 +5,29 @@
 
 using namespace std;
 
+template <typename T>
+class Visitor
+{
+public:
+    virtual void Visit(T &element) = 0;
+    virtual bool IsDone() const
+    {
+        return false;
+    }
+};
+
+class AddingVisitor : public Visitor<int>
+{
+    // w tym polu pamiętamy policzoną sumę
+    int sum = 0;
+
+    void Visit(int &i)
+    {
+        sum += i;
+    }
+};
+
+template <typename T>
 class Container
 {
 public:
@@ -13,6 +36,7 @@ public:
     virtual bool IsEmpty() const { return Count() == 0; };
     virtual bool IsFull() const = 0;
     virtual void MakeNull() = 0;
+    virtual void Accept(Visitor<T> &v) const = 0;
 };
 
 template <typename T>
@@ -170,7 +194,7 @@ public:
 
     void Wypisz()
     {
-        //tutaj mogę co najwyżej zmienić żeby wypisywało odpowiednie elementy a nie 0/1 
+        // tutaj mogę co najwyżej zmienić żeby wypisywało odpowiednie elementy a nie 0/1
         for (int i = 0; i < this->universeSize; i++)
         {
             cout << this->array[i] << " ";
@@ -178,8 +202,7 @@ public:
         cout << endl;
     }
 
-    // void Accept (Visitor&) const{};
-    // o metodzie Accept powiemy na następnych zajęciach
+    void Accept(Visitor<int> &v) const {};
 };
 
 int main()
