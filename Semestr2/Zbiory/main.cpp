@@ -49,9 +49,8 @@ class Iterator
 {
 public:
     virtual ~Iterator(){};
-    Iterator(){};
-    virtual bool IsDone() const = 0;
-    virtual T &operator*() const = 0;
+    virtual bool IsDone() = 0;
+    virtual T &operator*() = 0;
     virtual void operator++() = 0;
 };
 
@@ -75,6 +74,75 @@ public:
 class SetAsArray : public Set<int>
 {
     std::vector<bool> array;
+
+public:
+    class Iter : public Iterator<int>
+    {
+        std::vector<bool> data;
+        int universeSize;
+        int index;
+        // bool done = false;
+
+    public:
+        Iter(std::vector<bool> array, int univerSize) : data(array), universeSize(univerSize)
+        {
+            for (int i = 0; i < data.size(); i++)
+            {
+                if (data[i] == true)
+                {
+                    index = i;
+                    break;
+                }
+            }
+            // if (index >= universeSize)
+            //     done = true;
+        }
+
+        ~Iter(){};
+
+        int &operator*()
+        {
+            return index;
+        }
+
+        void operator++()
+        {
+            for (int i = index + 1; i < data.size(); i++)
+            {
+                if (data[i] == true)
+                {
+                    index = i;
+                    break;
+                }
+            }
+        }
+
+        bool IsDone()
+        {
+            //jesli jakikolwiek element ponad index bedzie true to zwracam false
+            //wpp zwracam true
+            if (index >= universeSize)
+            {
+                return true;
+            }
+            else
+            {
+                for (int i = index + 1; i < universeSize; i++)
+                {
+                    if (data[i] == true)
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+
+        void wypisz()
+        {
+            cout << this->universeSize << " " << this->index << endl;
+        }
+    };
 
 public:
     // pobiera jeden argument N oznaczajacy rozmiar zbioru uniwersalnego
@@ -231,34 +299,6 @@ public:
         }
     }
 
-    class Iter : public Iterator<int>
-    {
-        std::vector<bool> data;
-        int universeSize;
-        int index;
-
-    public:
-        Iter(std::vector<bool> array, int univerSize)
-            : data(array), universeSize(univerSize)
-        {
-            for (auto &element : data)
-            {
-                if (element == true)
-                {
-                    // tu moze byc zle, zrob lepiej zwykla petle ktora ma i
-                    index = element;
-                    break;
-                }
-            }
-        };
-        ~Iter();
-        const int &operator*(){
-            return index;
-        };
-        void operator++();
-        bool IsDone() const;
-    };
-
     Iter &NewIterator()
     {
         return *new Iter(array, universeSize);
@@ -286,55 +326,79 @@ int main()
 
     cout << "A: ";
     A.Wypisz();
-    cout << "B: ";
-    B.Wypisz();
-    cout << "C: ";
-    C.Wypisz();
-    cout << "D: ";
-    D.Wypisz();
-    cout << D.Count() << endl;
 
-    // cout << "Czy D==A ? " << operator==(D, A) << endl;
-    //  inny sposób na użycie przeciążonego operatora:
-    cout << "Czy D == A: " << ((D == A) ? "Tak" : "Nie") << endl;
-    cout << "Czy D <= A: " << ((D <= A) ? "Tak" : "Nie") << endl;
-    cout << "Czy C == B: " << ((C == B) ? "Tak" : "Nie") << endl;
-    cout << "Czy B <= C: " << ((B <= C) ? "Tak" : "Nie") << endl;
+    cout << "A(iteratorem): ";
+    SetAsArray::Iter iter_A = A.NewIterator();
+    //SetAsArray::Iter iter_Aa = A.NewIterator();
+    iter_A.wypisz();
 
-    A.Insert(1);
-    A.Wypisz();
-    cout << "Czy D == A: " << ((D == A) ? "Tak" : "Nie") << endl;
-    cout << "Czy D <= A: " << ((D <= A) ? "Tak" : "Nie") << endl;
+    // cout << iter_A.operator*() << endl;
+    // iter_A.operator++();
+    // cout << iter_A.operator*() << endl;
+    // iter_A.operator++();
+    // cout << iter_A.operator*() << endl;
+    // iter_A.operator++();
+    // cout << iter_A.operator*() << endl;
+    // iter_A.operator++();
+    // cout << iter_A.operator*() << endl;
+    
 
-    // nowe testy
+    while (!iter_A.IsDone())
+    {
+        cout << *(iter_A) << " ";
+        ++(iter_A);
+    }
+    cout << endl;
+    /*
+        cout << "B: ";
+        B.Wypisz();
+        cout << "C: ";
+        C.Wypisz();
+        cout << "D: ";
+        D.Wypisz();
+        cout << "Licznik D: " << D.Count() << endl;
 
-    A.Insert(5);
-    cout << "A: ";
-    A.Wypisz();
+        // cout << "Czy D==A ? " << operator==(D, A) << endl;
+        //  inny sposób na użycie przeciążonego operatora:
+        cout << "Czy D == A: " << ((D == A) ? "Tak" : "Nie") << endl;
+        cout << "Czy D <= A: " << ((D <= A) ? "Tak" : "Nie") << endl;
+        cout << "Czy C == B: " << ((C == B) ? "Tak" : "Nie") << endl;
+        cout << "Czy B <= C: " << ((B <= C) ? "Tak" : "Nie") << endl;
 
-    AddingVisitor<int> v_A;
-    A.Accept(v_A);
-    cout << "Obliczona suma A : " << v_A.sum << endl;
+        A.Insert(1);
+        A.Wypisz();
+        cout << "Czy D == A: " << ((D == A) ? "Tak" : "Nie") << endl;
+        cout << "Czy D <= A: " << ((D <= A) ? "Tak" : "Nie") << endl;
 
-    SetAsArray E(10);
-    // E = operator*(A, B);
-    // inny sposob na uzycie przeciążonego operatora
-    E = A * B;
+        // nowe testy
 
-    cout << "E: ";
-    E.Wypisz();
+        A.Insert(5);
+        cout << "A: ";
+        A.Wypisz();
 
-    AddingVisitor<int> v_E;
-    E.Accept(v_E);
-    cout << "Obliczona suma E : " << v_E.sum << endl;
-    v_E.MakeNull();
+        AddingVisitor<int> v_A;
+        A.Accept(v_A);
+        cout << "Obliczona suma A : " << v_A.sum << endl;
 
-    E.Withdraw(1);
-    cout << "E: ";
-    E.Wypisz();
+        SetAsArray E(10);
+        // E = operator*(A, B);
+        // inny sposob na uzycie przeciążonego operatora
+        E = A * B;
 
-    E.Accept(v_E);
-    cout << "Obliczona suma E: " << v_E.sum << endl;
+        cout << "E: ";
+        E.Wypisz();
 
+        AddingVisitor<int> v_E;
+        E.Accept(v_E);
+        cout << "Obliczona suma E : " << v_E.sum << endl;
+        v_E.MakeNull();
+
+        E.Withdraw(1);
+        cout << "E: ";
+        E.Wypisz();
+
+        E.Accept(v_E);
+        cout << "Obliczona suma E: " << v_E.sum << endl;
+    */
     return 0;
 }
