@@ -45,6 +45,17 @@ public:
 };
 
 template <typename T>
+class Iterator
+{
+public:
+    virtual ~Iterator(){};
+    Iterator(){};
+    virtual bool IsDone() const = 0;
+    virtual T &operator*() const = 0;
+    virtual void operator++() = 0;
+};
+
+template <typename T>
 class Set : public Container<T>
 {
 protected:
@@ -126,7 +137,8 @@ public:
         for (int i = 0; i < s.universeSize; ++i)
         {
             result.array[i] = s.array[i] || t.array[i];
-            result.count++;
+            if (result.array[i] == true)
+                result.count++;
         }
         return result;
     }
@@ -142,7 +154,8 @@ public:
         for (int i = 0; i < s.universeSize; ++i)
         {
             result.array[i] = s.array[i] && !t.array[i];
-            result.count++;
+            if (result.array[i] == true)
+                result.count++;
         }
         return result;
     }
@@ -158,7 +171,8 @@ public:
         for (int i = 0; i < s.universeSize; ++i)
         {
             result.array[i] = s.array[i] && t.array[i];
-            result.count++;
+            if (result.array[i] == true)
+                result.count++;
         }
         return result;
     }
@@ -215,7 +229,40 @@ public:
             if (this->array[i] == true)
                 v.Visit(i);
         }
+    }
+
+    class Iter : public Iterator<int>
+    {
+        std::vector<bool> data;
+        int universeSize;
+        int index;
+
+    public:
+        Iter(std::vector<bool> array, int univerSize)
+            : data(array), universeSize(univerSize)
+        {
+            for (auto &element : data)
+            {
+                if (element == true)
+                {
+                    // tu moze byc zle, zrob lepiej zwykla petle ktora ma i
+                    index = element;
+                    break;
+                }
+            }
+        };
+        ~Iter();
+        const int &operator*(){
+            return index;
+        };
+        void operator++();
+        bool IsDone() const;
     };
+
+    Iter &NewIterator()
+    {
+        return *new Iter(array, universeSize);
+    }
 };
 
 int main()
@@ -233,9 +280,9 @@ int main()
     B.Insert(7);
     B.Insert(9);
 
-    C = operator+(A, B);
+    C = (A + B);
 
-    D = operator-(C, B);
+    D = (C - B);
 
     cout << "A: ";
     A.Wypisz();
@@ -245,6 +292,7 @@ int main()
     C.Wypisz();
     cout << "D: ";
     D.Wypisz();
+    cout << D.Count() << endl;
 
     // cout << "Czy D==A ? " << operator==(D, A) << endl;
     //  inny sposób na użycie przeciążonego operatora:
