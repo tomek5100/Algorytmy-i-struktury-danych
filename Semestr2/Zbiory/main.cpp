@@ -81,7 +81,7 @@ public:
         std::vector<bool> data;
         int universeSize;
         int index;
-        // bool done = false;
+        bool done = false;
 
     public:
         Iter(std::vector<bool> array, int univerSize) : data(array), universeSize(univerSize)
@@ -94,8 +94,12 @@ public:
                     break;
                 }
             }
-            // if (index >= universeSize)
-            //     done = true;
+            // konstruktor kopouje tablice i wielkosc zbioru uniwersalnego
+            // nastepnie w petli ustawia index na pierwszy element
+            // jesli index jest rowny wielkosci zbioru lub jest wiekszy to mam informacje
+            // dla metody IsDone że może zakończyć pracę iteratora
+            if (index >= universeSize)
+                done = true;
         }
 
         ~Iter(){};
@@ -111,6 +115,7 @@ public:
             {
                 if (data[i] == true)
                 {
+                    // cout << "przesuniety indeks " << i << endl;
                     index = i;
                     break;
                 }
@@ -119,8 +124,8 @@ public:
 
         bool IsDone()
         {
-            //jesli jakikolwiek element ponad index bedzie true to zwracam false
-            //wpp zwracam true
+            // jesli jakikolwiek element ponad index bedzie true to zwracam false
+            // wpp zwracam true
             if (index >= universeSize)
             {
                 return true;
@@ -131,6 +136,7 @@ public:
                 {
                     if (data[i] == true)
                     {
+                        // cout << "isdone i= " << i << endl;
                         return false;
                     }
                 }
@@ -139,7 +145,7 @@ public:
         }
 
         void wypisz()
-        {
+        { // wypisuje wielkosc skopiowanego zbioru uniwersalnego oraz aktualna pozycje indeksu
             cout << this->universeSize << " " << this->index << endl;
         }
     };
@@ -329,7 +335,7 @@ int main()
 
     cout << "A(iteratorem): ";
     SetAsArray::Iter iter_A = A.NewIterator();
-    //SetAsArray::Iter iter_Aa = A.NewIterator();
+    // SetAsArray::Iter iter_Aa = A.NewIterator();
     iter_A.wypisz();
 
     // cout << iter_A.operator*() << endl;
@@ -341,13 +347,16 @@ int main()
     // cout << iter_A.operator*() << endl;
     // iter_A.operator++();
     // cout << iter_A.operator*() << endl;
-    
 
     while (!iter_A.IsDone())
     {
         cout << *(iter_A) << " ";
         ++(iter_A);
     }
+    cout << *(iter_A) << endl;
+    //ten dodatkowy cout jest potrzebny aby wypisac ostatnia
+    //wartosc
+
     cout << endl;
     /*
         cout << "B: ";
