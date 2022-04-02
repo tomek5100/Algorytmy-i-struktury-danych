@@ -306,11 +306,19 @@ public:
 
     void Accept(Visitor<int> &v) const
     {
-        for (int i = 0; i < universeSize; i++)
+        int i;
+        for (i = 0; i < universeSize; i++)
         {
             if (this->array[i] == true)
+            {
                 v.Visit(i);
+                if (v.IsDone())
+                {
+                    break;
+                }
+            }
         }
+        cout << "Accept zakonczylo prace na komorce: " << i << endl;
     }
 
     Iter &NewIterator()
@@ -356,6 +364,7 @@ int main()
     cout << "Czy B <= C: " << ((B <= C) ? "Tak" : "Nie") << endl;
 
     A.Insert(1);
+    cout << "A: ";
     A.Wypisz();
     cout << "Czy D == A: " << ((D == A) ? "Tak" : "Nie") << endl;
     cout << "Czy D <= A: " << ((D <= A) ? "Tak" : "Nie") << endl;
@@ -390,7 +399,31 @@ int main()
     E.Accept(v_E);
     cout << "Obliczona suma E: " << v_E.sum << endl;
 
-    //nowe testy 2
+    // nowe testy 2
+
+    cout << "B: ";
+    B.Wypisz();
+
+    OddVisitor ov_B;
+    B.Accept(ov_B);
+    cout << ov_B.IsDone() << endl;
+
+    cout << "A: ";
+    A.Wypisz();
+
+    OddVisitor ov_A;
+    A.Accept(ov_A);
+    cout << ov_A.IsDone() << endl;
+
+    A.Withdraw(1);
+    A.Withdraw(5);
+
+    cout << "A: ";
+    A.Wypisz();
+
+    ov_A.reset();
+    A.Accept(ov_A);
+    cout << ov_A.IsDone() << endl;
 
     cout << "A(iteratorem): ";
     Iterator<int> &iter_A = A.NewIterator();
