@@ -32,6 +32,42 @@ public:
     }
 };
 
+class OddVisitor : public Visitor<int>
+{
+    bool odd;
+
+public:
+    OddVisitor() : odd(false){};
+    void Visit(int &element)
+    {
+        if (element % 2 == 1)
+        {
+            odd = true;
+        }
+    }
+
+    bool IsDone() const
+    {
+        return odd;
+    }
+
+    void reset()
+    {
+        odd = false;
+    }
+};
+
+template <typename T>
+class Iterator
+{
+public:
+    Iterator(){};
+    virtual ~Iterator(){};
+    virtual bool IsDone() = 0;
+    virtual T &operator*() = 0;
+    virtual void operator++() = 0;
+};
+
 template <typename T>
 class Container
 {
@@ -42,16 +78,6 @@ public:
     virtual bool IsFull() const = 0;
     virtual void MakeNull() = 0;
     virtual void Accept(Visitor<T> &v) const = 0;
-};
-
-template <typename T>
-class Iterator
-{
-public:
-    virtual ~Iterator(){};
-    virtual bool IsDone() = 0;
-    virtual T &operator*() = 0;
-    virtual void operator++() = 0;
 };
 
 template <typename T>
@@ -81,12 +107,14 @@ public:
         std::vector<bool> data;
         int universeSize;
         int index;
-        bool done = false;
+        int visited;   // ilosc odwiedzonych elementow zbioru
+        int &elements; // ilosc elementow w zbiorze
 
     public:
-        Iter(std::vector<bool> array, int univerSize) : data(array), universeSize(univerSize)
+        Iter(std::vector<bool> array, int univerSize, int &count) : data(array), universeSize(univerSize), elements(count)
         {
-            for (int i = 0; i < data.size(); i++)
+            visited = 1;
+            for (int i = 0; i < universeSize; i++)
             {
                 if (data[i] == true)
                 {
@@ -94,12 +122,6 @@ public:
                     break;
                 }
             }
-            // konstruktor kopouje tablice i wielkosc zbioru uniwersalnego
-            // nastepnie w petli ustawia index na pierwszy element
-            // jesli index jest rowny wielkosci zbioru lub jest wiekszy to mam informacje
-            // dla metody IsDone że może zakończyć pracę iteratora
-            if (index >= universeSize)
-                done = true;
         }
 
         ~Iter(){};
@@ -111,42 +133,28 @@ public:
 
         void operator++()
         {
-            for (int i = index + 1; i < data.size(); i++)
+            for (int i = index + 1; i < universeSize; i++)
             {
                 if (data[i] == true)
                 {
-                    // cout << "przesuniety indeks " << i << endl;
                     index = i;
                     break;
                 }
             }
+            visited++;
         }
 
         bool IsDone()
         {
-            // jesli jakikolwiek element ponad index bedzie true to zwracam false
-            // wpp zwracam true
-            if (index >= universeSize)
+            // jesli odwiedzilem wszystkie elementy to zwracam true
+            if (visited > elements)
             {
                 return true;
             }
             else
             {
-                for (int i = index + 1; i < universeSize; i++)
-                {
-                    if (data[i] == true)
-                    {
-                        // cout << "isdone i= " << i << endl;
-                        return false;
-                    }
-                }
-                return true;
+                return false;
             }
-        }
-
-        void wypisz()
-        { // wypisuje wielkosc skopiowanego zbioru uniwersalnego oraz aktualna pozycje indeksu
-            cout << this->universeSize << " " << this->index << endl;
         }
     };
 
@@ -307,7 +315,7 @@ public:
 
     Iter &NewIterator()
     {
-        return *new Iter(array, universeSize);
+        return *new Iter(array, universeSize, count);
     }
 };
 
@@ -332,82 +340,79 @@ int main()
 
     cout << "A: ";
     A.Wypisz();
+    cout << "B: ";
+    B.Wypisz();
+    cout << "C: ";
+    C.Wypisz();
+    cout << "D: ";
+    D.Wypisz();
+    cout << "Licznik D: " << D.Count() << endl;
+
+    // cout << "Czy D==A ? " << operator==(D, A) << endl;
+    //  inny sposób na użycie przeciążonego operatora:
+    cout << "Czy D == A: " << ((D == A) ? "Tak" : "Nie") << endl;
+    cout << "Czy D <= A: " << ((D <= A) ? "Tak" : "Nie") << endl;
+    cout << "Czy C == B: " << ((C == B) ? "Tak" : "Nie") << endl;
+    cout << "Czy B <= C: " << ((B <= C) ? "Tak" : "Nie") << endl;
+
+    A.Insert(1);
+    A.Wypisz();
+    cout << "Czy D == A: " << ((D == A) ? "Tak" : "Nie") << endl;
+    cout << "Czy D <= A: " << ((D <= A) ? "Tak" : "Nie") << endl;
+
+    // nowe testy 1
+
+    A.Insert(5);
+    cout << "A: ";
+    A.Wypisz();
+
+    AddingVisitor<int> v_A;
+    A.Accept(v_A);
+    cout << "Obliczona suma A : " << v_A.sum << endl;
+
+    SetAsArray E(10);
+    // E = operator*(A, B);
+    // inny sposob na uzycie przeciążonego operatora
+    E = A * B;
+
+    cout << "E: ";
+    E.Wypisz();
+
+    AddingVisitor<int> v_E;
+    E.Accept(v_E);
+    cout << "Obliczona suma E : " << v_E.sum << endl;
+    v_E.MakeNull();
+
+    E.Withdraw(1);
+    cout << "E: ";
+    E.Wypisz();
+
+    E.Accept(v_E);
+    cout << "Obliczona suma E: " << v_E.sum << endl;
+
+    //nowe testy 2
 
     cout << "A(iteratorem): ";
-    SetAsArray::Iter iter_A = A.NewIterator();
-    // SetAsArray::Iter iter_Aa = A.NewIterator();
-    iter_A.wypisz();
-
-    // cout << iter_A.operator*() << endl;
-    // iter_A.operator++();
-    // cout << iter_A.operator*() << endl;
-    // iter_A.operator++();
-    // cout << iter_A.operator*() << endl;
-    // iter_A.operator++();
-    // cout << iter_A.operator*() << endl;
-    // iter_A.operator++();
-    // cout << iter_A.operator*() << endl;
+    Iterator<int> &iter_A = A.NewIterator();
 
     while (!iter_A.IsDone())
     {
         cout << *(iter_A) << " ";
         ++(iter_A);
     }
-    cout << *(iter_A) << endl;
-    //ten dodatkowy cout jest potrzebny aby wypisac ostatnia
-    //wartosc
-
     cout << endl;
-    /*
-        cout << "B: ";
-        B.Wypisz();
-        cout << "C: ";
-        C.Wypisz();
-        cout << "D: ";
-        D.Wypisz();
-        cout << "Licznik D: " << D.Count() << endl;
+    delete &iter_A;
 
-        // cout << "Czy D==A ? " << operator==(D, A) << endl;
-        //  inny sposób na użycie przeciążonego operatora:
-        cout << "Czy D == A: " << ((D == A) ? "Tak" : "Nie") << endl;
-        cout << "Czy D <= A: " << ((D <= A) ? "Tak" : "Nie") << endl;
-        cout << "Czy C == B: " << ((C == B) ? "Tak" : "Nie") << endl;
-        cout << "Czy B <= C: " << ((B <= C) ? "Tak" : "Nie") << endl;
+    cout << "B(iteratorem): ";
+    Iterator<int> &iter_B = B.NewIterator();
 
-        A.Insert(1);
-        A.Wypisz();
-        cout << "Czy D == A: " << ((D == A) ? "Tak" : "Nie") << endl;
-        cout << "Czy D <= A: " << ((D <= A) ? "Tak" : "Nie") << endl;
+    while (!iter_B.IsDone())
+    {
+        cout << *(iter_B) << " ";
+        ++(iter_B);
+    }
+    cout << endl;
+    delete &iter_B;
 
-        // nowe testy
-
-        A.Insert(5);
-        cout << "A: ";
-        A.Wypisz();
-
-        AddingVisitor<int> v_A;
-        A.Accept(v_A);
-        cout << "Obliczona suma A : " << v_A.sum << endl;
-
-        SetAsArray E(10);
-        // E = operator*(A, B);
-        // inny sposob na uzycie przeciążonego operatora
-        E = A * B;
-
-        cout << "E: ";
-        E.Wypisz();
-
-        AddingVisitor<int> v_E;
-        E.Accept(v_E);
-        cout << "Obliczona suma E : " << v_E.sum << endl;
-        v_E.MakeNull();
-
-        E.Withdraw(1);
-        cout << "E: ";
-        E.Wypisz();
-
-        E.Accept(v_E);
-        cout << "Obliczona suma E: " << v_E.sum << endl;
-    */
     return 0;
 }
