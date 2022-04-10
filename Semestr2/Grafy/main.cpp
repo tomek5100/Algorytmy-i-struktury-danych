@@ -115,13 +115,11 @@ public:
     GraphAsMatrix(int n, bool b) : numberOfVertices(n), isDirected(b)
     {
         vertices.resize(n);
-        fill(vertices.begin(), vertices.end(), 0);
-
         adjacencyMatrix.resize(n);
-        fill(adjacencyMatrix.begin(), adjacencyMatrix.end(), 0);
 
         for (int i = 0; i < numberOfVertices; i++)
         {
+            vertices[i] = NULL;
             adjacencyMatrix.resize(numberOfVertices);
 
             for (int j = 0; j < numberOfVertices; j++)
