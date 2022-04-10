@@ -4,6 +4,7 @@
 
 using namespace std;
 
+//wierzcholki
 class Vertex
 {
     // unikalny numer wierzcholka
@@ -16,6 +17,7 @@ public:
     int Number() const { return number; };
 };
 
+//krawedzie
 class Edge
 {
 protected:
@@ -39,7 +41,7 @@ class GraphAsMatrix
 {
     std::vector<Vertex *> vertices;                   // vector wierzcholkow grafu
     std::vector<std::vector<Edge *>> adjacencyMatrix; // macierz sasiedztwa
-    bool isDirected;
+    bool isDirected;                                  // czy graf skierowany
     int numberOfVertices;
     int numberOfEdges = 0;
 
@@ -108,7 +110,7 @@ public:
             vertices.push_back();
         }
 
-        //ustawiamy macierz sasiedztwa na zera
+        // ustawiamy macierz sasiedztwa na zera
         fill(adjacencyMatrix.begin(), adjacencyMatrix.end(), 0);
     };
 
