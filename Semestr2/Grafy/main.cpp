@@ -4,6 +4,17 @@
 
 using namespace std;
 
+template <typename T>
+class Iterator
+{
+public:
+    Iterator(){};
+    virtual ~Iterator(){};
+    virtual bool IsDone() = 0;
+    virtual T &operator*() = 0;
+    virtual void operator++() = 0;
+};
+
 // wierzcholki
 class Vertex
 {
@@ -45,6 +56,7 @@ public:
         else
         {
             cout << "Blad! Krawedz nie ma drugiego wierzcholka!" << endl;
+            return NULL;
         }
     };
 };
@@ -57,58 +69,104 @@ class GraphAsMatrix
     int numberOfVertices;                             // liczba wierzcholkow
     int numberOfEdges = 0;                            // liczba krawedzi
 
-    /*
-            class AllVerticesIter : public Iterator<Vertex>
-            {
-                GraphAsMatrix &owner;
-                int current;
+public:
+    class AllVerticesIter : public Iterator<Vertex>
+    {
+        GraphAsMatrix &owner;
+        int current;
 
-            public:
-                AllVerticesIter(GraphAsMatrix &owner);
-                bool IsDone();
-                Vertex &operator*();
-                void operator++();
-            };
-            class AllEdgesIter : public Iterator<Edge>
+    public:
+        AllVerticesIter(GraphAsMatrix &o) : owner(o), current(0){};
+        bool IsDone()
+        {
+            if (current < owner.NumberOfVertices())
             {
-                GraphAsMatrix &owner;
-                int row;
-                int col;
-
-            public:
-                void next();
-                AllEdgesIter(GraphAsMatrix &owner);
-                bool IsDone();
-                Edge &operator*();
-                void operator++() { next(); }
-            };
-            class EmanEdgesIter : public Iterator<Edge>
+                return false;
+            }
+            else
+                return true;
+        };
+        Vertex &operator*(){
+            // return owner.SelectVertex(current)->Number();
+        };
+        void operator++()
+        {
+            if (current < owner.NumberOfVertices())
             {
-                GraphAsMatrix &owner;
-                int row;
-                int col;
+                current++;
+            }
+        };
+    };
 
-            public:
-                void next();
-                EmanEdgesIter(GraphAsMatrix &owner, int v);
-                bool IsDone();
-                Edge &operator*();
-                void operator++() { next(); }
-            };
-            class InciEdgesIter : public Iterator<Edge>
+    class AllEdgesIter : public Iterator<Edge>
+    {
+        GraphAsMatrix &owner;
+        int row;
+        int col;
+
+    public:
+        void next()
+        {
+
+            for (int i = row; i < owner.NumberOfVertices(); i++)
             {
-                GraphAsMatrix &owner;
-                int row;
-                int col;
+                for (int j = col; j < owner.NumberOfVertices(); j++)
+                {
+                    if (owner.adjacencyMatrix[i][j] != NULL)
+                    {
+                        row = i;
+                        col = j;
+                        break;
+                    }
+                }
+            }
+        };
+        AllEdgesIter(GraphAsMatrix &o) : owner(o), row(0), col(0)
+        {
+            this->next();
+        };
+        bool IsDone()
+        {
+            if (row >= owner.NumberOfVertices() && col >= owner.NumberOfVertices())
+            {
+                return true;
+            }
+            else
+                return false;
+        };
+        Edge &operator*(){
+            return owner.SelectEdge(row, col);
+        };
+        void operator++() { next(); }
+    };
 
-            public:
-                void next();
-                InciEdgesIter(GraphAsMatrix &owner, int v);
-                bool IsDone();
-                Edge &operator*();
-                void operator++() { next(); }
-            };
-    */
+    class EmanEdgesIter : public Iterator<Edge>
+    {
+        GraphAsMatrix &owner;
+        int row;
+        int col;
+
+    public:
+        void next();
+        EmanEdgesIter(GraphAsMatrix &owner, int v);
+        bool IsDone();
+        Edge &operator*();
+        void operator++() { next(); }
+    };
+
+    class InciEdgesIter : public Iterator<Edge>
+    {
+        GraphAsMatrix &owner;
+        int row;
+        int col;
+
+    public:
+        void next();
+        InciEdgesIter(GraphAsMatrix &owner, int v);
+        bool IsDone();
+        Edge &operator*();
+        void operator++() { next(); }
+    };
 
 public:
     // liczba wierzcholkow, czy skierowany
@@ -225,7 +283,7 @@ public:
         else
         {
             cout << "Blad SelectEdge" << endl;
-            exit;
+            return NULL;
         }
     };
 
@@ -239,16 +297,14 @@ public:
         else
         {
             cout << "Blad SelectVertex" << endl;
-            exit;
+            return NULL;
         }
     };
 
-    /*
-            Iterator<Vertex> &VerticesIter();
-            Iterator<Edge> &EdgesIter();
-            Iterator<Edge> &EmanatingEdgesIter(int v);
-            Iterator<Edge> &IncidentEdgesIter(int v);
-    */
+    Iterator<Vertex> &VerticesIter();
+    Iterator<Edge> &EdgesIter();
+    Iterator<Edge> &EmanatingEdgesIter(int v);
+    Iterator<Edge> &IncidentEdgesIter(int v);
 };
 
 int main()
