@@ -77,6 +77,7 @@ public:
 
     public:
         AllVerticesIter(GraphAsMatrix &o) : owner(o), current(0){};
+
         bool IsDone()
         {
             if (current < owner.NumberOfVertices())
@@ -86,9 +87,12 @@ public:
             else
                 return true;
         };
-        Vertex &operator*(){
-            // return owner.SelectVertex(current)->Number();
+
+        Vertex &operator*()
+        {
+            return *owner.vertices[current];
         };
+
         void operator++()
         {
             if (current < owner.NumberOfVertices())
@@ -125,6 +129,7 @@ public:
         {
             this->next();
         };
+
         bool IsDone()
         {
             if (row >= owner.NumberOfVertices() && col >= owner.NumberOfVertices())
@@ -134,10 +139,16 @@ public:
             else
                 return false;
         };
-        Edge &operator*(){
-            return owner.SelectEdge(row, col);
+
+        Edge &operator*()
+        {
+            return *owner.adjacencyMatrix[row][col];
         };
-        void operator++() { next(); }
+
+        void operator++()
+        {
+            next();
+        }
     };
 
     class EmanEdgesIter : public Iterator<Edge>
@@ -147,10 +158,28 @@ public:
         int col;
 
     public:
-        void next();
-        EmanEdgesIter(GraphAsMatrix &owner, int v);
-        bool IsDone();
-        Edge &operator*();
+        void next(){
+
+            // napisac
+
+        };
+        EmanEdgesIter(GraphAsMatrix &o, int v) : owner(o), row(v), col(0)
+        {
+            this->next();
+        };
+        bool IsDone()
+        {
+            if (col >= owner.NumberOfVertices())
+            {
+                return true;
+            }
+            else
+                return false;
+        };
+        Edge &operator*()
+        {
+            return *owner.adjacencyMatrix[row][col];
+        };
         void operator++() { next(); }
     };
 
@@ -161,10 +190,27 @@ public:
         int col;
 
     public:
-        void next();
-        InciEdgesIter(GraphAsMatrix &owner, int v);
-        bool IsDone();
-        Edge &operator*();
+        void next(){
+
+            // napisac
+
+        };
+        InciEdgesIter(GraphAsMatrix &o, int v) : owner(o), row(0), col(v){};
+        bool IsDone()
+        {
+            if (row >= owner.NumberOfVertices())
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        };
+        Edge &operator*()
+        {
+            return *owner.adjacencyMatrix[row][col];
+        };
         void operator++() { next(); }
     };
 
