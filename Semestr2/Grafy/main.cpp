@@ -70,6 +70,7 @@ class GraphAsMatrix
     int numberOfEdges = 0;                            // liczba krawedzi
 
 public:
+    // iterator po wszystkich wierzcholkach, czyli czytam caly wektor
     class AllVerticesIter : public Iterator<Vertex>
     {
         GraphAsMatrix &owner;
@@ -81,9 +82,7 @@ public:
         bool IsDone()
         {
             if (current < owner.NumberOfVertices())
-            {
                 return false;
-            }
             else
                 return true;
         };
@@ -102,6 +101,7 @@ public:
         };
     };
 
+    // iterator po wszystkich krawedziach, czyli czytam cala macierz
     class AllEdgesIter : public Iterator<Edge>
     {
         GraphAsMatrix &owner;
@@ -111,20 +111,24 @@ public:
     public:
         void next()
         {
-
+            // potrzebuje tej zmiennej bo jesli nie bedzie kolejnej krawedzi to blednie
+            // zmienilbym informacje o row i col
+            int col_cpy = col;
             for (int i = row; i < owner.NumberOfVertices(); i++)
             {
-                for (int j = col; j < owner.NumberOfVertices(); j++)
+                for (int j = col_cpy + 1; j < owner.NumberOfVertices(); j++)
                 {
                     if (owner.adjacencyMatrix[i][j] != NULL)
                     {
                         row = i;
                         col = j;
-                        break;
+                        return;
                     }
                 }
+                col_cpy = 0;
             }
         };
+
         AllEdgesIter(GraphAsMatrix &o) : owner(o), row(0), col(0)
         {
             this->next();
@@ -151,6 +155,7 @@ public:
         }
     };
 
+    // iterator po krawedziach danego wierzcholka, czyli czytam wiersz
     class EmanEdgesIter : public Iterator<Edge>
     {
         GraphAsMatrix &owner;
@@ -158,10 +163,16 @@ public:
         int col;
 
     public:
-        void next(){
-
-            // napisac
-
+        void next()
+        {
+            for (int j = col + 1; j < owner.NumberOfVertices(); j++)
+            {
+                if (owner.adjacencyMatrix[row][j] != NULL)
+                {
+                    col = j;
+                    return;
+                }
+            }
         };
         EmanEdgesIter(GraphAsMatrix &o, int v) : owner(o), row(v), col(0)
         {
@@ -183,6 +194,7 @@ public:
         void operator++() { next(); }
     };
 
+    // iterator po krawedziach dochodzacych do danego wierzcholka, czyli czytam kolumne
     class InciEdgesIter : public Iterator<Edge>
     {
         GraphAsMatrix &owner;
@@ -190,10 +202,16 @@ public:
         int col;
 
     public:
-        void next(){
-
-            // napisac
-
+        void next()
+        {
+            for (int i = row + 1; i < owner.NumberOfVertices(); i++)
+            {
+                if (owner.adjacencyMatrix[i][col] != NULL)
+                {
+                    row = i;
+                    return;
+                }
+            }
         };
         InciEdgesIter(GraphAsMatrix &o, int v) : owner(o), row(0), col(v){};
         bool IsDone()
@@ -347,71 +365,92 @@ public:
         }
     };
 
-    Iterator<Vertex> &VerticesIter();
-    Iterator<Edge> &EdgesIter();
-    Iterator<Edge> &EmanatingEdgesIter(int v);
-    Iterator<Edge> &IncidentEdgesIter(int v);
+    // iterator po wszystkich wierzcholkach, czyli czytam caly wektor
+    Iterator<Vertex> &VerticesIter()
+    {
+        return *new AllVerticesIter(*this);
+    }
+
+    // iterator po wszystkich krawedziach, czyli czytam cala macierz
+    Iterator<Edge> &EdgesIter()
+    {
+        return *new AllEdgesIter(*this);
+    }
+
+    // iterator po krawedziach danego wierzcholka, czyli czytam wiersz
+    Iterator<Edge> &EmanatingEdgesIter(int v)
+    {
+        return *new EmanEdgesIter(*this, v);
+    }
+
+    // iterator po krawedziach dochodzacych do danego wierzcholka, czyli czytam kolumne
+    Iterator<Edge> &IncidentEdgesIter(int v)
+    {
+        return *new InciEdgesIter(*this, v);
+    }
 };
 
 int main()
 {
-    cout << "\nGraf skierowany" << endl;
-    GraphAsMatrix graf_skierowany = GraphAsMatrix(10, true);
-    cout << "Liczba wierzcholkow: " << graf_skierowany.NumberOfVertices() << endl;
-    cout << "Liczba krawedzi: " << graf_skierowany.NumberOfEdges() << endl;
+    {
+        cout << "\nGraf skierowany" << endl;
+        GraphAsMatrix graf_skierowany = GraphAsMatrix(10, true);
+        cout << "Liczba wierzcholkow: " << graf_skierowany.NumberOfVertices() << endl;
+        cout << "Liczba krawedzi: " << graf_skierowany.NumberOfEdges() << endl;
 
-    Vertex *v = graf_skierowany.SelectVertex(2);
-    cout << "\nUnikalny numer: " << v->Number() << endl;
-    v->weight = v->Number() * v->Number();
-    cout << "Waga wierzcholka: " << v->weight << endl;
+        Vertex *v = graf_skierowany.SelectVertex(2);
+        cout << "\nUnikalny numer: " << v->Number() << endl;
+        v->weight = v->Number() * v->Number();
+        cout << "Waga wierzcholka: " << v->weight << endl;
 
-    graf_skierowany.AddEdge(1, 2);
-    graf_skierowany.AddEdge(1, 2);
-    graf_skierowany.AddEdge(2, 3);
-    graf_skierowany.AddEdge(3, 4);
-    graf_skierowany.AddEdge(9, 9);
+        graf_skierowany.AddEdge(1, 2);
+        graf_skierowany.AddEdge(1, 2);
+        graf_skierowany.AddEdge(2, 3);
+        graf_skierowany.AddEdge(3, 4);
+        graf_skierowany.AddEdge(9, 9);
 
-    cout << "\nLiczba wierzcholkow: " << graf_skierowany.NumberOfVertices() << endl;
-    cout << "Liczba krawedzi: " << graf_skierowany.NumberOfEdges() << endl;
-    cout << "Czy istnieje krawedz (1,1) ? " << graf_skierowany.IsEdge(1, 1) << endl;
-    cout << "Czy istnieje krawedz (1,2) ? " << graf_skierowany.IsEdge(1, 2) << endl;
-    cout << "Czy istnieje krawedz (2,1) ? " << graf_skierowany.IsEdge(2, 1) << endl;
+        cout << "\nLiczba wierzcholkow: " << graf_skierowany.NumberOfVertices() << endl;
+        cout << "Liczba krawedzi: " << graf_skierowany.NumberOfEdges() << endl;
+        cout << "Czy istnieje krawedz (1,1) ? " << graf_skierowany.IsEdge(1, 1) << endl;
+        cout << "Czy istnieje krawedz (1,2) ? " << graf_skierowany.IsEdge(1, 2) << endl;
+        cout << "Czy istnieje krawedz (2,1) ? " << graf_skierowany.IsEdge(2, 1) << endl;
 
-    Edge *e = graf_skierowany.SelectEdge(1, 2);
-    cout << "\nSelectEdge(1, 2): " << endl;
-    cout << "V0: " << e->V0()->Number() << endl;
-    cout << "V1: " << e->V1()->Number() << endl;
-    cout << "Sasiad V0: " << e->Mate(e->V0())->Number() << endl;
-    cout << "Sasiad V1: " << e->Mate(e->V1())->Number() << endl;
-    e->weight = e->V0()->Number() * e->V1()->Number();
-    cout << "Waga krawedzi: " << e->weight << endl;
+        Edge *e = graf_skierowany.SelectEdge(1, 2);
+        cout << "\nSelectEdge(1, 2): " << endl;
+        cout << "V0: " << e->V0()->Number() << endl;
+        cout << "V1: " << e->V1()->Number() << endl;
+        cout << "Sasiad V0: " << e->Mate(e->V0())->Number() << endl;
+        cout << "Sasiad V1: " << e->Mate(e->V1())->Number() << endl;
+        e->weight = e->V0()->Number() * e->V1()->Number();
+        cout << "Waga krawedzi: " << e->weight << endl;
 
-    Edge *f = graf_skierowany.SelectEdge(2, 3);
-    cout << "\nSelectEdge(2, 3): " << endl;
-    cout << "V0: " << f->V0()->Number() << endl;
-    cout << "V1: " << f->V1()->Number() << endl;
-    cout << "Sasiad V0: " << f->Mate(f->V0())->Number() << endl;
-    cout << "Sasiad V1: " << f->Mate(f->V1())->Number() << endl;
-    f->weight = f->V0()->Number() * f->V1()->Number();
-    cout << "Waga krawedzi: " << f->weight << endl;
+        Edge *f = graf_skierowany.SelectEdge(2, 3);
+        cout << "\nSelectEdge(2, 3): " << endl;
+        cout << "V0: " << f->V0()->Number() << endl;
+        cout << "V1: " << f->V1()->Number() << endl;
+        cout << "Sasiad V0: " << f->Mate(f->V0())->Number() << endl;
+        cout << "Sasiad V1: " << f->Mate(f->V1())->Number() << endl;
+        f->weight = f->V0()->Number() * f->V1()->Number();
+        cout << "Waga krawedzi: " << f->weight << endl;
 
-    Edge *g = graf_skierowany.SelectEdge(3, 4);
-    cout << "\nSelectEdge(3, 4): " << endl;
-    cout << "V0: " << g->V0()->Number() << endl;
-    cout << "V1: " << g->V1()->Number() << endl;
-    cout << "Sasiad V0: " << g->Mate(g->V0())->Number() << endl;
-    cout << "Sasiad V1: " << g->Mate(g->V1())->Number() << endl;
-    g->weight = g->V0()->Number() * g->V1()->Number();
-    cout << "Waga krawedzi: " << g->weight << endl;
+        Edge *g = graf_skierowany.SelectEdge(3, 4);
+        cout << "\nSelectEdge(3, 4): " << endl;
+        cout << "V0: " << g->V0()->Number() << endl;
+        cout << "V1: " << g->V1()->Number() << endl;
+        cout << "Sasiad V0: " << g->Mate(g->V0())->Number() << endl;
+        cout << "Sasiad V1: " << g->Mate(g->V1())->Number() << endl;
+        g->weight = g->V0()->Number() * g->V1()->Number();
+        cout << "Waga krawedzi: " << g->weight << endl;
 
-    Edge *h = graf_skierowany.SelectEdge(9, 9);
-    cout << "\nSelectEdge(9, 9): " << endl;
-    cout << "V0: " << h->V0()->Number() << endl;
-    cout << "V1: " << h->V1()->Number() << endl;
-    cout << "Sasiad V0: " << h->Mate(h->V0())->Number() << endl;
-    cout << "Sasiad V1: " << h->Mate(h->V1())->Number() << endl;
-    h->weight = h->V0()->Number() * h->V1()->Number();
-    cout << "Waga krawedzi: " << h->weight << endl;
-
+        Edge *h = graf_skierowany.SelectEdge(9, 9);
+        cout << "\nSelectEdge(9, 9): " << endl;
+        cout << "V0: " << h->V0()->Number() << endl;
+        cout << "V1: " << h->V1()->Number() << endl;
+        cout << "Sasiad V0: " << h->Mate(h->V0())->Number() << endl;
+        cout << "Sasiad V1: " << h->Mate(h->V1())->Number() << endl;
+        h->weight = h->V0()->Number() * h->V1()->Number();
+        cout << "Waga krawedzi: " << h->weight << endl;
+    }
+    
     return 0;
 }
