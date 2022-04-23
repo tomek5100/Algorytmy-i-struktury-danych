@@ -392,65 +392,227 @@ public:
 
 int main()
 {
+    cout << "\nGraf skierowany" << endl;
+    GraphAsMatrix graf_skierowany = GraphAsMatrix(10, true);
+    cout << "Liczba wierzcholkow: " << graf_skierowany.NumberOfVertices() << endl;
+    cout << "Liczba krawedzi: " << graf_skierowany.NumberOfEdges() << endl;
+
+    Vertex *v = graf_skierowany.SelectVertex(2);
+    cout << "\nUnikalny numer: " << v->Number() << endl;
+    v->weight = v->Number() * v->Number();
+    cout << "Waga wierzcholka: " << v->weight << endl;
+    delete &v;
+
+    graf_skierowany.AddEdge(1, 2);
+    graf_skierowany.AddEdge(1, 2);
+    graf_skierowany.AddEdge(2, 3);
+    graf_skierowany.AddEdge(3, 4);
+    graf_skierowany.AddEdge(9, 9);
+
+    cout << "\nLiczba wierzcholkow: " << graf_skierowany.NumberOfVertices() << endl;
+    cout << "Liczba krawedzi: " << graf_skierowany.NumberOfEdges() << endl;
+    cout << "Czy istnieje krawedz (1,1) ? " << graf_skierowany.IsEdge(1, 1) << endl;
+    cout << "Czy istnieje krawedz (1,2) ? " << graf_skierowany.IsEdge(1, 2) << endl;
+    cout << "Czy istnieje krawedz (2,1) ? " << graf_skierowany.IsEdge(2, 1) << endl;
+
+    Edge *e = graf_skierowany.SelectEdge(1, 2);
+    cout << "\nSelectEdge(1, 2): " << endl;
+    cout << "V0: " << e->V0()->Number() << endl;
+    cout << "V1: " << e->V1()->Number() << endl;
+    cout << "Sasiad V0: " << e->Mate(e->V0())->Number() << endl;
+    cout << "Sasiad V1: " << e->Mate(e->V1())->Number() << endl;
+    e->weight = e->V0()->Number() * e->V1()->Number();
+    cout << "Waga krawedzi: " << e->weight << endl;
+    delete &e;
+
+    Edge *f = graf_skierowany.SelectEdge(2, 3);
+    cout << "\nSelectEdge(2, 3): " << endl;
+    cout << "V0: " << f->V0()->Number() << endl;
+    cout << "V1: " << f->V1()->Number() << endl;
+    cout << "Sasiad V0: " << f->Mate(f->V0())->Number() << endl;
+    cout << "Sasiad V1: " << f->Mate(f->V1())->Number() << endl;
+    f->weight = f->V0()->Number() * f->V1()->Number();
+    cout << "Waga krawedzi: " << f->weight << endl;
+    delete &f;
+
+    Edge *g = graf_skierowany.SelectEdge(3, 4);
+    cout << "\nSelectEdge(3, 4): " << endl;
+    cout << "V0: " << g->V0()->Number() << endl;
+    cout << "V1: " << g->V1()->Number() << endl;
+    cout << "Sasiad V0: " << g->Mate(g->V0())->Number() << endl;
+    cout << "Sasiad V1: " << g->Mate(g->V1())->Number() << endl;
+    g->weight = g->V0()->Number() * g->V1()->Number();
+    cout << "Waga krawedzi: " << g->weight << endl;
+    delete &g;
+
+    Edge *h = graf_skierowany.SelectEdge(9, 9);
+    cout << "\nSelectEdge(9, 9): " << endl;
+    cout << "V0: " << h->V0()->Number() << endl;
+    cout << "V1: " << h->V1()->Number() << endl;
+    cout << "Sasiad V0: " << h->Mate(h->V0())->Number() << endl;
+    cout << "Sasiad V1: " << h->Mate(h->V1())->Number() << endl;
+    h->weight = h->V0()->Number() * h->V1()->Number();
+    cout << "Waga krawedzi: " << h->weight << endl;
+    delete &h;
+
+    // graf nieskierowany
+
+    cout << "\nGraf nieskierowany" << endl;
+    GraphAsMatrix graf_nieskierowany = GraphAsMatrix(10, true);
+    cout << "Liczba wierzcholkow: " << graf_nieskierowany.NumberOfVertices() << endl;
+    cout << "Liczba krawedzi: " << graf_nieskierowany.NumberOfEdges() << endl;
+
+    v = graf_nieskierowany.SelectVertex(2);
+    cout << "\nUnikalny numer: " << v->Number() << endl;
+    v->weight = v->Number() * v->Number();
+    cout << "Waga wierzcholka: " << v->weight << endl;
+    delete &v;
+
+    graf_nieskierowany.AddEdge(1, 2);
+    graf_nieskierowany.AddEdge(1, 2);
+    graf_nieskierowany.AddEdge(2, 3);
+    graf_nieskierowany.AddEdge(3, 4);
+    graf_nieskierowany.AddEdge(9, 9);
+
+    cout << "\nLiczba wierzcholkow: " << graf_nieskierowany.NumberOfVertices() << endl;
+    cout << "Liczba krawedzi: " << graf_nieskierowany.NumberOfEdges() << endl;
+    cout << "Czy istnieje krawedz (1,1) ? " << graf_nieskierowany.IsEdge(1, 1) << endl;
+    cout << "Czy istnieje krawedz (1,2) ? " << graf_nieskierowany.IsEdge(1, 2) << endl;
+    cout << "Czy istnieje krawedz (2,1) ? " << graf_nieskierowany.IsEdge(2, 1) << endl;
+
+    e = graf_nieskierowany.SelectEdge(1, 2);
+    cout << "\nSelectEdge(1, 2): " << endl;
+    cout << "V0: " << e->V0()->Number() << endl;
+    cout << "V1: " << e->V1()->Number() << endl;
+    cout << "Sasiad V0: " << e->Mate(e->V0())->Number() << endl;
+    cout << "Sasiad V1: " << e->Mate(e->V1())->Number() << endl;
+    e->weight = e->V0()->Number() * e->V1()->Number();
+    cout << "Waga krawedzi: " << e->weight << endl;
+    delete &e;
+
+    f = graf_nieskierowany.SelectEdge(2, 3);
+    cout << "\nSelectEdge(2, 3): " << endl;
+    cout << "V0: " << f->V0()->Number() << endl;
+    cout << "V1: " << f->V1()->Number() << endl;
+    cout << "Sasiad V0: " << f->Mate(f->V0())->Number() << endl;
+    cout << "Sasiad V1: " << f->Mate(f->V1())->Number() << endl;
+    f->weight = f->V0()->Number() * f->V1()->Number();
+    cout << "Waga krawedzi: " << f->weight << endl;
+    delete &f;
+
+    g = graf_nieskierowany.SelectEdge(3, 4);
+    cout << "\nSelectEdge(3, 4): " << endl;
+    cout << "V0: " << g->V0()->Number() << endl;
+    cout << "V1: " << g->V1()->Number() << endl;
+    cout << "Sasiad V0: " << g->Mate(g->V0())->Number() << endl;
+    cout << "Sasiad V1: " << g->Mate(g->V1())->Number() << endl;
+    g->weight = g->V0()->Number() * g->V1()->Number();
+    cout << "Waga krawedzi: " << g->weight << endl;
+    delete &g;
+
+    h = graf_nieskierowany.SelectEdge(9, 9);
+    cout << "\nSelectEdge(9, 9): " << endl;
+    cout << "V0: " << h->V0()->Number() << endl;
+    cout << "V1: " << h->V1()->Number() << endl;
+    cout << "Sasiad V0: " << h->Mate(h->V0())->Number() << endl;
+    cout << "Sasiad V1: " << h->Mate(h->V1())->Number() << endl;
+    h->weight = h->V0()->Number() * h->V1()->Number();
+    cout << "Waga krawedzi: " << h->weight << endl;
+    delete &h;
+
+    // nowe testy - Iteratory
+
+    // najpierw dla grafu skierowanego
+    cout << "\nGraf skierowany" << endl;
+    cout << "\nIterator po wierzcholkach" << endl;
+    Iterator<Vertex> &wierzcholki = graf_skierowany.VerticesIter();
+
+    while (!wierzcholki.IsDone())
     {
-        cout << "\nGraf skierowany" << endl;
-        GraphAsMatrix graf_skierowany = GraphAsMatrix(10, true);
-        cout << "Liczba wierzcholkow: " << graf_skierowany.NumberOfVertices() << endl;
-        cout << "Liczba krawedzi: " << graf_skierowany.NumberOfEdges() << endl;
-
-        Vertex *v = graf_skierowany.SelectVertex(2);
-        cout << "\nUnikalny numer: " << v->Number() << endl;
-        v->weight = v->Number() * v->Number();
-        cout << "Waga wierzcholka: " << v->weight << endl;
-
-        graf_skierowany.AddEdge(1, 2);
-        graf_skierowany.AddEdge(1, 2);
-        graf_skierowany.AddEdge(2, 3);
-        graf_skierowany.AddEdge(3, 4);
-        graf_skierowany.AddEdge(9, 9);
-
-        cout << "\nLiczba wierzcholkow: " << graf_skierowany.NumberOfVertices() << endl;
-        cout << "Liczba krawedzi: " << graf_skierowany.NumberOfEdges() << endl;
-        cout << "Czy istnieje krawedz (1,1) ? " << graf_skierowany.IsEdge(1, 1) << endl;
-        cout << "Czy istnieje krawedz (1,2) ? " << graf_skierowany.IsEdge(1, 2) << endl;
-        cout << "Czy istnieje krawedz (2,1) ? " << graf_skierowany.IsEdge(2, 1) << endl;
-
-        Edge *e = graf_skierowany.SelectEdge(1, 2);
-        cout << "\nSelectEdge(1, 2): " << endl;
-        cout << "V0: " << e->V0()->Number() << endl;
-        cout << "V1: " << e->V1()->Number() << endl;
-        cout << "Sasiad V0: " << e->Mate(e->V0())->Number() << endl;
-        cout << "Sasiad V1: " << e->Mate(e->V1())->Number() << endl;
-        e->weight = e->V0()->Number() * e->V1()->Number();
-        cout << "Waga krawedzi: " << e->weight << endl;
-
-        Edge *f = graf_skierowany.SelectEdge(2, 3);
-        cout << "\nSelectEdge(2, 3): " << endl;
-        cout << "V0: " << f->V0()->Number() << endl;
-        cout << "V1: " << f->V1()->Number() << endl;
-        cout << "Sasiad V0: " << f->Mate(f->V0())->Number() << endl;
-        cout << "Sasiad V1: " << f->Mate(f->V1())->Number() << endl;
-        f->weight = f->V0()->Number() * f->V1()->Number();
-        cout << "Waga krawedzi: " << f->weight << endl;
-
-        Edge *g = graf_skierowany.SelectEdge(3, 4);
-        cout << "\nSelectEdge(3, 4): " << endl;
-        cout << "V0: " << g->V0()->Number() << endl;
-        cout << "V1: " << g->V1()->Number() << endl;
-        cout << "Sasiad V0: " << g->Mate(g->V0())->Number() << endl;
-        cout << "Sasiad V1: " << g->Mate(g->V1())->Number() << endl;
-        g->weight = g->V0()->Number() * g->V1()->Number();
-        cout << "Waga krawedzi: " << g->weight << endl;
-
-        Edge *h = graf_skierowany.SelectEdge(9, 9);
-        cout << "\nSelectEdge(9, 9): " << endl;
-        cout << "V0: " << h->V0()->Number() << endl;
-        cout << "V1: " << h->V1()->Number() << endl;
-        cout << "Sasiad V0: " << h->Mate(h->V0())->Number() << endl;
-        cout << "Sasiad V1: " << h->Mate(h->V1())->Number() << endl;
-        h->weight = h->V0()->Number() * h->V1()->Number();
-        cout << "Waga krawedzi: " << h->weight << endl;
+        cout << "Numer: " << (*wierzcholki).Number() << " Waga: " << (*wierzcholki).weight << endl;
+        ++wierzcholki;
     }
-    
+    delete &wierzcholki;
+
+    graf_skierowany.AddEdge(3, 5);
+    graf_skierowany.AddEdge(8, 3);
+    graf_skierowany.AddEdge(5, 2);
+
+    cout << "\nIterator po wszystkich krawedziach" << endl;
+    Iterator<Edge> &wszystkie_krawedzie = graf_skierowany.EdgesIter();
+
+    while (!wszystkie_krawedzie.IsDone())
+    {
+        cout << "V0: " << (*wszystkie_krawedzie).V0()->Number() << " V1: " << (*wszystkie_krawedzie).V0()->Number() << endl;
+        ++wszystkie_krawedzie;
+    }
+    delete &wszystkie_krawedzie;
+
+    cout << "\nIterator po krawedziach wychodzacych z wierzcholka nr 3" << endl;
+    Iterator<Edge> &wychodzace = graf_skierowany.EmanatingEdgesIter(3);
+
+    while (!wychodzace.IsDone())
+    {
+        cout << "V0: " << (*wychodzace).V0()->Number() << " V1: " << (*wychodzace).V0()->Number() << endl;
+        ++wychodzace;
+    }
+    delete &wychodzace;
+
+    cout << "\nIterator po krawedziach dochodzacych do wierzcholka nr 2" << endl;
+    Iterator<Edge> &dochodzace = graf_skierowany.IncidentEdgesIter(2);
+
+    while (!dochodzace.IsDone())
+    {
+        cout << "V0: " << (*dochodzace).V0()->Number() << " V1: " << (*dochodzace).V0()->Number() << endl;
+        ++dochodzace;
+    }
+    delete &dochodzace;
+
+    // graf nieskierowany
+    cout << "\nGraf nieskierowany" << endl;
+    cout << "\nIterator po wierzcholkach" << endl;
+    wierzcholki = graf_nieskierowany.VerticesIter();
+
+    while (!wierzcholki.IsDone())
+    {
+        cout << "Numer: " << (*wierzcholki).Number() << " Waga: " << (*wierzcholki).weight << endl;
+        ++wierzcholki;
+    }
+    delete &wierzcholki;
+
+    graf_nieskierowany.AddEdge(3, 5);
+    graf_nieskierowany.AddEdge(8, 3);
+    graf_nieskierowany.AddEdge(5, 2);
+
+    cout << "\nIterator po wszystkich krawedziach" << endl;
+    wszystkie_krawedzie = graf_nieskierowany.EdgesIter();
+
+    while (!wszystkie_krawedzie.IsDone())
+    {
+        cout << "V0: " << (*wszystkie_krawedzie).V0()->Number() << " V1: " << (*wszystkie_krawedzie).V0()->Number() << endl;
+        ++wszystkie_krawedzie;
+    }
+    delete &wszystkie_krawedzie;
+
+    cout << "\nIterator po krawedziach wychodzacych z wierzcholka nr 3" << endl;
+    wychodzace = graf_nieskierowany.EmanatingEdgesIter(3);
+
+    while (!wychodzace.IsDone())
+    {
+        cout << "V0: " << (*wychodzace).V0()->Number() << " V1: " << (*wychodzace).V0()->Number() << endl;
+        ++wychodzace;
+    }
+    delete &wychodzace;
+
+    cout << "\nIterator po krawedziach dochodzacych do wierzcholka nr 2" << endl;
+    dochodzace = graf_nieskierowany.IncidentEdgesIter(2);
+
+    while (!dochodzace.IsDone())
+    {
+        cout << "V0: " << (*dochodzace).V0()->Number() << " V1: " << (*dochodzace).V0()->Number() << endl;
+        ++dochodzace;
+    }
+    delete &dochodzace;
+
     return 0;
 }
