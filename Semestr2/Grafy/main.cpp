@@ -109,39 +109,52 @@ public:
         int col;
 
     public:
+        AllEdgesIter(GraphAsMatrix &o) : owner(o), row(0), col(0)
+        {
+            next();
+        };
+
         void next()
         {
-            // potrzebuje tej zmiennej bo jesli nie bedzie kolejnej krawedzi to blednie
-            // zmienilbym informacje o row i col
-            int col_cpy = col;
+            if (row != 0 && col != 0)
+            {
+                col++;
+            }
+            if (row == (owner.NumberOfVertices() - 1) && (col >= owner.NumberOfVertices() - 1))
+            {
+                // jesli wsystkie wiersze i kolumny zostaly przejrzane
+                // daje informacje metodzie isDone aby zakonczyc iterowanie
+                row = owner.NumberOfVertices();
+                col = owner.NumberOfVertices();
+            }
             for (int i = row; i < owner.NumberOfVertices(); i++)
             {
-                for (int j = col_cpy + 1; j < owner.NumberOfVertices(); j++)
+                for (int j = col; j < owner.NumberOfVertices(); j++)
                 {
                     if (owner.adjacencyMatrix[i][j] != NULL)
                     {
+                        // znalezlismy kolejna krawedz
                         row = i;
                         col = j;
                         return;
                     }
+                    if (j == owner.NumberOfVertices() - 1)
+                    {
+                        // aby przegladac kolumny nowego wiersza od nowa
+                        col = 0;
+                    }
                 }
-                col_cpy = 0;
             }
-        };
-
-        AllEdgesIter(GraphAsMatrix &o) : owner(o), row(0), col(0)
-        {
-            this->next();
         };
 
         bool IsDone()
         {
-            if (row >= owner.NumberOfVertices() && col >= owner.NumberOfVertices())
+            if (row < owner.NumberOfVertices() && col < owner.NumberOfVertices())
             {
-                return true;
+                return false;
             }
             else
-                return false;
+                return true;
         };
 
         Edge &operator*()
@@ -149,10 +162,7 @@ public:
             return *owner.adjacencyMatrix[row][col];
         };
 
-        void operator++()
-        {
-            next();
-        }
+        void operator++() { next(); }
     };
 
     // iterator po krawedziach danego wierzcholka, czyli czytam wiersz
@@ -165,27 +175,27 @@ public:
     public:
         void next()
         {
-            for (int j = col + 1; j < owner.NumberOfVertices(); j++)
+            for (int j = col; j < owner.NumberOfVertices() - 1; j++)
             {
-                if (owner.adjacencyMatrix[row][j] != NULL)
+                if (owner.adjacencyMatrix[row][j + 1] != NULL)
                 {
-                    col = j;
+                    col = j + 1;
                     return;
                 }
             }
+            // ustawiam to zeby dac informacje metodzie isDone ze przejrzalem wszystko
+            col = owner.NumberOfVertices();
         };
         EmanEdgesIter(GraphAsMatrix &o, int v) : owner(o), row(v), col(0)
         {
-            this->next();
+            next();
         };
         bool IsDone()
         {
-            if (col >= owner.NumberOfVertices())
-            {
-                return true;
-            }
-            else
+            if (col < owner.NumberOfVertices())
                 return false;
+            else
+                return true;
         };
         Edge &operator*()
         {
@@ -204,31 +214,40 @@ public:
     public:
         void next()
         {
-            for (int i = row + 1; i < owner.NumberOfVertices(); i++)
+            for (int i = row; i < owner.NumberOfVertices() - 1; i++)
             {
-                if (owner.adjacencyMatrix[i][col] != NULL)
+                if (owner.adjacencyMatrix[i + 1][col] != NULL)
                 {
-                    row = i;
+                    row = i + 1;
                     return;
                 }
             }
+            // ustawiam to zeby dac informacje metodzie isDone ze przejrzalem wszystko
+            row = owner.NumberOfVertices();
         };
-        InciEdgesIter(GraphAsMatrix &o, int v) : owner(o), row(0), col(v){};
+
+        InciEdgesIter(GraphAsMatrix &o, int v) : owner(o), row(0), col(v)
+        {
+            next();
+        };
+
         bool IsDone()
         {
-            if (row >= owner.NumberOfVertices())
-            {
-                return true;
-            }
-            else
+            if (row < owner.NumberOfVertices())
             {
                 return false;
             }
+            else
+            {
+                return true;
+            }
         };
+
         Edge &operator*()
         {
             return *owner.adjacencyMatrix[row][col];
         };
+
         void operator++() { next(); }
     };
 
@@ -237,22 +256,15 @@ public:
     GraphAsMatrix(int n, bool b) : numberOfVertices(n), isDirected(b)
     {
         vertices.resize(n);
-        adjacencyMatrix.resize(n);
 
         for (int i = 0; i < numberOfVertices; i++)
         {
             vertices[i] = new Vertex(i);
         }
 
-        for (int i = 0; i < numberOfVertices; i++)
-        {
-            adjacencyMatrix[i].resize(numberOfVertices);
-
-            for (int j = 0; j < numberOfVertices; j++)
-            {
-                adjacencyMatrix[i][j] == NULL;
-            }
-        }
+        // oczyszczam macierz sasiedztwa
+        std::vector<std::vector<Edge *>> tmp_matrix(numberOfVertices, std::vector<Edge *>(numberOfVertices, NULL));
+        adjacencyMatrix = tmp_matrix;
     };
 
     int NumberOfVertices() { return numberOfVertices; };
@@ -392,7 +404,7 @@ public:
 
 int main()
 {
-    cout << "\nGraf skierowany" << endl;
+    cout << "\n\tGraf skierowany" << endl;
     GraphAsMatrix graf_skierowany = GraphAsMatrix(10, true);
     cout << "Liczba wierzcholkow: " << graf_skierowany.NumberOfVertices() << endl;
     cout << "Liczba krawedzi: " << graf_skierowany.NumberOfEdges() << endl;
@@ -401,7 +413,6 @@ int main()
     cout << "\nUnikalny numer: " << v->Number() << endl;
     v->weight = v->Number() * v->Number();
     cout << "Waga wierzcholka: " << v->weight << endl;
-    delete &v;
 
     graf_skierowany.AddEdge(1, 2);
     graf_skierowany.AddEdge(1, 2);
@@ -423,7 +434,6 @@ int main()
     cout << "Sasiad V1: " << e->Mate(e->V1())->Number() << endl;
     e->weight = e->V0()->Number() * e->V1()->Number();
     cout << "Waga krawedzi: " << e->weight << endl;
-    delete &e;
 
     Edge *f = graf_skierowany.SelectEdge(2, 3);
     cout << "\nSelectEdge(2, 3): " << endl;
@@ -433,7 +443,6 @@ int main()
     cout << "Sasiad V1: " << f->Mate(f->V1())->Number() << endl;
     f->weight = f->V0()->Number() * f->V1()->Number();
     cout << "Waga krawedzi: " << f->weight << endl;
-    delete &f;
 
     Edge *g = graf_skierowany.SelectEdge(3, 4);
     cout << "\nSelectEdge(3, 4): " << endl;
@@ -443,7 +452,6 @@ int main()
     cout << "Sasiad V1: " << g->Mate(g->V1())->Number() << endl;
     g->weight = g->V0()->Number() * g->V1()->Number();
     cout << "Waga krawedzi: " << g->weight << endl;
-    delete &g;
 
     Edge *h = graf_skierowany.SelectEdge(9, 9);
     cout << "\nSelectEdge(9, 9): " << endl;
@@ -453,12 +461,11 @@ int main()
     cout << "Sasiad V1: " << h->Mate(h->V1())->Number() << endl;
     h->weight = h->V0()->Number() * h->V1()->Number();
     cout << "Waga krawedzi: " << h->weight << endl;
-    delete &h;
 
     // graf nieskierowany
 
-    cout << "\nGraf nieskierowany" << endl;
-    GraphAsMatrix graf_nieskierowany = GraphAsMatrix(10, true);
+    cout << "\n\tGraf nieskierowany" << endl;
+    GraphAsMatrix graf_nieskierowany = GraphAsMatrix(10, false);
     cout << "Liczba wierzcholkow: " << graf_nieskierowany.NumberOfVertices() << endl;
     cout << "Liczba krawedzi: " << graf_nieskierowany.NumberOfEdges() << endl;
 
@@ -466,7 +473,6 @@ int main()
     cout << "\nUnikalny numer: " << v->Number() << endl;
     v->weight = v->Number() * v->Number();
     cout << "Waga wierzcholka: " << v->weight << endl;
-    delete &v;
 
     graf_nieskierowany.AddEdge(1, 2);
     graf_nieskierowany.AddEdge(1, 2);
@@ -488,7 +494,6 @@ int main()
     cout << "Sasiad V1: " << e->Mate(e->V1())->Number() << endl;
     e->weight = e->V0()->Number() * e->V1()->Number();
     cout << "Waga krawedzi: " << e->weight << endl;
-    delete &e;
 
     f = graf_nieskierowany.SelectEdge(2, 3);
     cout << "\nSelectEdge(2, 3): " << endl;
@@ -498,7 +503,6 @@ int main()
     cout << "Sasiad V1: " << f->Mate(f->V1())->Number() << endl;
     f->weight = f->V0()->Number() * f->V1()->Number();
     cout << "Waga krawedzi: " << f->weight << endl;
-    delete &f;
 
     g = graf_nieskierowany.SelectEdge(3, 4);
     cout << "\nSelectEdge(3, 4): " << endl;
@@ -508,7 +512,6 @@ int main()
     cout << "Sasiad V1: " << g->Mate(g->V1())->Number() << endl;
     g->weight = g->V0()->Number() * g->V1()->Number();
     cout << "Waga krawedzi: " << g->weight << endl;
-    delete &g;
 
     h = graf_nieskierowany.SelectEdge(9, 9);
     cout << "\nSelectEdge(9, 9): " << endl;
@@ -518,12 +521,11 @@ int main()
     cout << "Sasiad V1: " << h->Mate(h->V1())->Number() << endl;
     h->weight = h->V0()->Number() * h->V1()->Number();
     cout << "Waga krawedzi: " << h->weight << endl;
-    delete &h;
 
     // nowe testy - Iteratory
 
     // najpierw dla grafu skierowanego
-    cout << "\nGraf skierowany" << endl;
+    cout << "\n\tGraf skierowany" << endl;
     cout << "\nIterator po wierzcholkach" << endl;
     Iterator<Vertex> &wierzcholki = graf_skierowany.VerticesIter();
 
@@ -543,7 +545,7 @@ int main()
 
     while (!wszystkie_krawedzie.IsDone())
     {
-        cout << "V0: " << (*wszystkie_krawedzie).V0()->Number() << " V1: " << (*wszystkie_krawedzie).V0()->Number() << endl;
+        cout << "V0: " << (*wszystkie_krawedzie).V0()->Number() << " V1: " << (*wszystkie_krawedzie).V1()->Number() << endl;
         ++wszystkie_krawedzie;
     }
     delete &wszystkie_krawedzie;
@@ -553,7 +555,7 @@ int main()
 
     while (!wychodzace.IsDone())
     {
-        cout << "V0: " << (*wychodzace).V0()->Number() << " V1: " << (*wychodzace).V0()->Number() << endl;
+        cout << "V0: " << (*wychodzace).V0()->Number() << " V1: " << (*wychodzace).V1()->Number() << endl;
         ++wychodzace;
     }
     delete &wychodzace;
@@ -563,13 +565,13 @@ int main()
 
     while (!dochodzace.IsDone())
     {
-        cout << "V0: " << (*dochodzace).V0()->Number() << " V1: " << (*dochodzace).V0()->Number() << endl;
+        cout << "V0: " << (*dochodzace).V0()->Number() << " V1: " << (*dochodzace).V1()->Number() << endl;
         ++dochodzace;
     }
     delete &dochodzace;
 
     // graf nieskierowany
-    cout << "\nGraf nieskierowany" << endl;
+    cout << "\n\tGraf nieskierowany" << endl;
     cout << "\nIterator po wierzcholkach" << endl;
     wierzcholki = graf_nieskierowany.VerticesIter();
 
@@ -589,7 +591,7 @@ int main()
 
     while (!wszystkie_krawedzie.IsDone())
     {
-        cout << "V0: " << (*wszystkie_krawedzie).V0()->Number() << " V1: " << (*wszystkie_krawedzie).V0()->Number() << endl;
+        cout << "V0: " << (*wszystkie_krawedzie).V0()->Number() << " V1: " << (*wszystkie_krawedzie).V1()->Number() << endl;
         ++wszystkie_krawedzie;
     }
     delete &wszystkie_krawedzie;
@@ -599,7 +601,7 @@ int main()
 
     while (!wychodzace.IsDone())
     {
-        cout << "V0: " << (*wychodzace).V0()->Number() << " V1: " << (*wychodzace).V0()->Number() << endl;
+        cout << "V0: " << (*wychodzace).V0()->Number() << " V1: " << (*wychodzace).V1()->Number() << endl;
         ++wychodzace;
     }
     delete &wychodzace;
@@ -609,7 +611,7 @@ int main()
 
     while (!dochodzace.IsDone())
     {
-        cout << "V0: " << (*dochodzace).V0()->Number() << " V1: " << (*dochodzace).V0()->Number() << endl;
+        cout << "V0: " << (*dochodzace).V0()->Number() << " V1: " << (*dochodzace).V1()->Number() << endl;
         ++dochodzace;
     }
     delete &dochodzace;
