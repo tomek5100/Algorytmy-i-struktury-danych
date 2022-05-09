@@ -68,7 +68,7 @@ class GraphAsMatrix
     bool isDirected;                                  // czy graf skierowany
     int numberOfVertices;                             // liczba wierzcholkow
     int numberOfEdges = 0;                            // liczba krawedzi
-    std::vector<bool> &visited;                       // czy wierzcholek byl odwiedzony
+    std::vector<bool> visited;                        // czy wierzcholek byl odwiedzony
 
 public:
     // iterator po wszystkich wierzcholkach, czyli czytam caly wektor
@@ -266,6 +266,10 @@ public:
         // oczyszczam macierz sasiedztwa
         std::vector<std::vector<Edge *>> tmp_matrix(numberOfVertices, std::vector<Edge *>(numberOfVertices, NULL));
         adjacencyMatrix = tmp_matrix;
+
+        // ustawiam tablice odwiedzonych wierzcholkow na false
+        visited.resize(n);
+        fill(visited.begin(), visited.end(), false);
     };
 
     int NumberOfVertices() { return numberOfVertices; };
@@ -405,7 +409,8 @@ public:
     // oznacza wszystkie wierzcholki jako nieodwiedzone i wywoluje metode DFS1
     void DFS(Vertex *v)
     {
-        fill(visited.begin(), visited.end(), false);
+        // konstruktor klasy Graph ustawia tablice visited na false
+        // w innym przypadku mialem blad inicjalizacji
         DFS1(v, visited);
     }
 
@@ -415,7 +420,11 @@ public:
         // wypisuje wierzcholek i ustawiam jako odwiedzony
         cout << v->Number() << endl;
         visited.at(v->Number()) = true;
-        
+
+        // tutaj chyba biore emantingedgesiter i sprawdzam pierwszego sasiada
+        // naszego wierzcholka
+        // jesli on nie ma kolejnego sasiada to wracam do poprzedniego i
+        // sprawdzam kolejnego sasiada itd..
     }
 };
 
