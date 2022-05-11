@@ -309,7 +309,8 @@ public:
                 // jesli jest nieskierowany to odbijamy symetrycznie wzgledem diagonali
                 if (!isDirected)
                 {
-                    adjacencyMatrix[v][u] = edge;
+                    Edge *edge_nieskierowana = new Edge(vertices[v], vertices[u]);
+                    adjacencyMatrix[v][u] = edge_nieskierowana;
                 }
             }
         }

@@ -314,7 +314,8 @@ public:
                 // jesli jest nieskierowany to odbijamy symetrycznie wzgledem diagonali
                 if (!isDirected)
                 {
-                    adjacencyMatrix[v][u] = edge;
+                    Edge *edge_nieskierowana = new Edge(vertices[v], vertices[u]);
+                    adjacencyMatrix[v][u] = edge_nieskierowana;
                 }
             }
         }
@@ -420,6 +421,11 @@ public:
         // wypisuje wierzcholek i ustawiam jako odwiedzony
         cout << v->Number() << endl;
         visited.at(v->Number()) = true;
+
+        while (!this->EmanatingEdgesIter(v->Number()).IsDone())
+        {
+            if(visited.at())
+        }
 
         // tutaj chyba biore emantingedgesiter i sprawdzam pierwszego sasiada
         // naszego wierzcholka
