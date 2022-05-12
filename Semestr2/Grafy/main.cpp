@@ -116,7 +116,7 @@ public:
 
         void next()
         {
-            if (row != 0 && col != 0)
+            if (row != 0 || col != 0)
             {
                 col++;
             }
