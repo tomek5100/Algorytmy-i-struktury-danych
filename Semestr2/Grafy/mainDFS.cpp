@@ -203,6 +203,11 @@ public:
         int col;
 
     public:
+        EmanEdgesIter(GraphAsMatrix &o, int v) : owner(o), row(v), col(0)
+        {
+            next();
+        };
+
         void next()
         {
             for (int j = col; j < owner.NumberOfVertices() - 1; j++)
@@ -217,10 +222,6 @@ public:
             col = owner.NumberOfVertices();
         };
 
-        EmanEdgesIter(GraphAsMatrix &o, int v) : owner(o), row(v), col(0)
-        {
-            next();
-        };
         bool IsDone()
         {
             if (col < owner.NumberOfVertices())
@@ -488,6 +489,7 @@ public:
     {
         // wywoluje metode Visit i ustawiam jako odwiedzony
         visitor->Visit();
+
         visited.at(v->Number()) = true;
 
         // iterator po krawedziach wychodzacych z v->Number()
@@ -495,6 +497,9 @@ public:
 
         while (!wychodzace.IsDone())
         {
+
+            //////////////////////////////////////////////////////////////
+            ////////////////////
             Vertex *wierzcholek = (*wychodzace).V1();
             if (visited.at(wierzcholek->Number()) == false)
             {
@@ -506,17 +511,35 @@ public:
 
     bool IsConnected()
     {
-        int ilosc = DFS_visitor(vertices.at(0));
-
-        if (ilosc == numberOfVertices)
+        int ilosc = 0;
+        if (!isDirected)
         {
-            // graf jest spojny
-            return true;
+            // nieskierowany - sprawdzanie spojnosci grafu
+            ilosc = DFS_visitor(vertices.at(0));
+            if (ilosc == numberOfVertices)
+            {
+                // graf jest spojny
+                return true;
+            }
+            else
+            {
+                // graf nie jest spojny
+                return false;
+            }
         }
         else
-        {
-            // graf nie jest spojny
-            return false;
+        { // sprawdzanie silnej spojnosci grafu skierowanego
+            for (int i = 0; i < numberOfVertices; ++i)
+            {
+                ilosc = DFS_visitor(vertices.at(i));
+                if (ilosc != numberOfVertices)
+                {
+                    cout << "i " << ilosc << endl;
+                    return false;
+                }
+            }
+            // jesli od kazdego wierzcholka doszlismy do kazdego to graf jest spojny
+            return true;
         }
     }
 };
@@ -716,14 +739,14 @@ int main()
     delete &wszystkie_krawedzie;
 
     cout << "\nIterator po krawedziach wychodzacych z wierzcholka nr 3" << endl;
-    wychodzace = graf_nieskierowany.EmanatingEdgesIter(3);
+    Iterator<Edge> &wychodzacea = graf_nieskierowany.EmanatingEdgesIter(3);
 
     while (!wychodzace.IsDone())
     {
-        cout << "V0: " << (*wychodzace).V0()->Number() << " V1: " << (*wychodzace).V1()->Number() << endl;
-        ++wychodzace;
+        cout << "V0: " << (*wychodzacea).V0()->Number() << " V1: " << (*wychodzacea).V1()->Number() << endl;
+        ++wychodzacea;
     }
-    delete &wychodzace;
+    delete &wychodzacea;
 
     cout << "\nIterator po krawedziach dochodzacych do wierzcholka nr 2" << endl;
     dochodzace = graf_nieskierowany.IncidentEdgesIter(2);
@@ -771,8 +794,27 @@ int main()
     // sprawdzenie spojnosci grafow
     cout << "\nSprawdzenie spojnosci grafu nieskierowanego: " << endl;
     cout << ((graph.IsConnected() == 1) ? "\tGraf jest spojny\n" : "\tGraf nie jest spojny\n");
+    graph.AddEdge(0, 8);
+    cout << "Dodano krawedz (0, 8): " << endl;
+    cout << ((graph.IsConnected() == 1) ? "\tGraf jest spojny\n" : "\tGraf nie jest spojny\n");
 
-    
+    cout << "\nSprawdzenie spojnosci grafu skierowanego: " << endl;
+    graphDir.AddEdge(0, 8);
+    graphDir.AddEdge(6, 0);
+    graphDir.AddEdge(9, 0);
+    cout << ((graphDir.IsConnected() == 1) ? "\tGraf jest spojny\n" : "\tGraf nie jest spojny\n");
+    graphDir.AddEdge(7, 0);
+    cout << "Dodano krawedz (7, 0): " << endl;
+    cout << ((graphDir.IsConnected() == 1) ? "\tGraf jest spojny\n" : "\tGraf nie jest spojny\n");
+    graphDir.DFS_visitor(graphDir.SelectVertex(7));
+
+    Iterator<Edge> &sra = graphDir.EmanatingEdgesIter(7);
+    while (!sra.IsDone())
+    {
+        cout << "V0: " << (*sra).V0()->Number() << " V1: " << (*sra).V1()->Number() << endl;
+        ++sra;
+    }
+    delete &sra;
 
     return 0;
 }
