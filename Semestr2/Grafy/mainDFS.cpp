@@ -201,15 +201,26 @@ public:
         GraphAsMatrix &owner;
         int row;
         int col;
+        bool iter;
 
     public:
         EmanEdgesIter(GraphAsMatrix &o, int v) : owner(o), row(v), col(0)
         {
+            iter = true;
             next();
         };
 
         void next()
         {
+            if (iter)
+            {
+                iter = false;
+                // aby przegladac pierwsza kolumne
+                if (owner.adjacencyMatrix[row][col] != NULL)
+                {
+                    return;
+                }
+            }
             for (int j = col; j < owner.NumberOfVertices() - 1; j++)
             {
                 if (owner.adjacencyMatrix[row][j + 1] != NULL)
@@ -473,6 +484,7 @@ public:
             }
             ++wychodzace;
         }
+        delete &wychodzace;
     }
 
     // zmodyfikowana metoda DFS1, zamiast wypisywania wierzcholkow zlicza ilosc przejrzen
@@ -497,9 +509,6 @@ public:
 
         while (!wychodzace.IsDone())
         {
-
-            //////////////////////////////////////////////////////////////
-            ////////////////////
             Vertex *wierzcholek = (*wychodzace).V1();
             if (visited.at(wierzcholek->Number()) == false)
             {
@@ -531,10 +540,8 @@ public:
         { // sprawdzanie silnej spojnosci grafu skierowanego
             for (int i = 0; i < numberOfVertices; ++i)
             {
-                ilosc = DFS_visitor(vertices.at(i));
-                if (ilosc != numberOfVertices)
+                if (DFS_visitor(vertices.at(i)) != numberOfVertices)
                 {
-                    cout << "i " << ilosc << endl;
                     return false;
                 }
             }
@@ -741,7 +748,7 @@ int main()
     cout << "\nIterator po krawedziach wychodzacych z wierzcholka nr 3" << endl;
     Iterator<Edge> &wychodzacea = graf_nieskierowany.EmanatingEdgesIter(3);
 
-    while (!wychodzace.IsDone())
+    while (!wychodzacea.IsDone())
     {
         cout << "V0: " << (*wychodzacea).V0()->Number() << " V1: " << (*wychodzacea).V1()->Number() << endl;
         ++wychodzacea;
@@ -806,15 +813,15 @@ int main()
     graphDir.AddEdge(7, 0);
     cout << "Dodano krawedz (7, 0): " << endl;
     cout << ((graphDir.IsConnected() == 1) ? "\tGraf jest spojny\n" : "\tGraf nie jest spojny\n");
-    graphDir.DFS_visitor(graphDir.SelectVertex(7));
+    // graphDir.DFS_visitor(graphDir.SelectVertex(7));
 
-    Iterator<Edge> &sra = graphDir.EmanatingEdgesIter(7);
-    while (!sra.IsDone())
-    {
-        cout << "V0: " << (*sra).V0()->Number() << " V1: " << (*sra).V1()->Number() << endl;
-        ++sra;
-    }
-    delete &sra;
+    // Iterator<Edge> &sra = graphDir.EmanatingEdgesIter(7);
+    // while (!sra.IsDone())
+    // {
+    //     cout << "V0: " << (*sra).V0()->Number() << " V1: " << (*sra).V1()->Number() << endl;
+    //     ++sra;
+    // }
+    // delete &sra;
 
     return 0;
 }
