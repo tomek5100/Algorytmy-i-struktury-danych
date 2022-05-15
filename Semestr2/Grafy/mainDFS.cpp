@@ -253,10 +253,20 @@ public:
         GraphAsMatrix &owner;
         int row;
         int col;
+        bool iter;
 
     public:
         void next()
         {
+            if ((row == 0) && (iter == true))
+            {
+                iter = false;
+                // aby przegladac pierwszy wiersz
+                if (owner.adjacencyMatrix[row][col] != NULL)
+                {
+                    return;
+                }
+            }
             for (int i = row; i < owner.NumberOfVertices() - 1; i++)
             {
                 if (owner.adjacencyMatrix[i + 1][col] != NULL)
@@ -272,6 +282,7 @@ public:
         InciEdgesIter(GraphAsMatrix &o, int v) : owner(o), row(0), col(v)
         {
             next();
+            iter = true;
         };
 
         bool IsDone()
@@ -756,14 +767,14 @@ int main()
     delete &wychodzacea;
 
     cout << "\nIterator po krawedziach dochodzacych do wierzcholka nr 2" << endl;
-    dochodzace = graf_nieskierowany.IncidentEdgesIter(2);
+    Iterator<Edge> &dochodzacea = graf_nieskierowany.IncidentEdgesIter(2);
 
-    while (!dochodzace.IsDone())
+    while (!dochodzacea.IsDone())
     {
-        cout << "V0: " << (*dochodzace).V0()->Number() << " V1: " << (*dochodzace).V1()->Number() << endl;
-        ++dochodzace;
+        cout << "V0: " << (*dochodzacea).V0()->Number() << " V1: " << (*dochodzacea).V1()->Number() << endl;
+        ++dochodzacea;
     }
-    delete &dochodzace;
+    delete &dochodzacea;
 
     // DFS (przegladanie w glab)
     cout << "\nDFS graf nieskierowany:" << endl;
