@@ -824,15 +824,6 @@ int main()
     graphDir.AddEdge(7, 0);
     cout << "Dodano krawedz (7, 0): " << endl;
     cout << ((graphDir.IsConnected() == 1) ? "\tGraf jest spojny\n" : "\tGraf nie jest spojny\n");
-    // graphDir.DFS_visitor(graphDir.SelectVertex(7));
-
-    // Iterator<Edge> &sra = graphDir.EmanatingEdgesIter(7);
-    // while (!sra.IsDone())
-    // {
-    //     cout << "V0: " << (*sra).V0()->Number() << " V1: " << (*sra).V1()->Number() << endl;
-    //     ++sra;
-    // }
-    // delete &sra;
 
     return 0;
 }
