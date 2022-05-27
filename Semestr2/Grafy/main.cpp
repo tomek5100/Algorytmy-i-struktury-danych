@@ -98,7 +98,7 @@ class GraphAsMatrix
     int numberOfVertices;                             // liczba wierzcholkow
     int numberOfEdges = 0;                            // liczba krawedzi
     std::vector<bool> visited;                        // czy wierzcholek byl odwiedzony
-    std::vector<int> parent;                         // drzewo rozpinajace graf
+    std::vector<int> parent;                          // drzewo rozpinajace graf
 
 public:
     // iterator po wszystkich wierzcholkach, czyli czytam caly wektor
@@ -325,8 +325,8 @@ public:
         visited.resize(n);
         fill(visited.begin(), visited.end(), false);
 
-        //ustawiam tablice parent na false (Brak rodzica)
-        // ustawiam tablice odwiedzonych wierzcholkow na false
+        // ustawiam tablice parent na false (Brak rodzica)
+        //  ustawiam tablice odwiedzonych wierzcholkow na false
         parent.resize(n);
         fill(parent.begin(), parent.end(), -1);
     };
@@ -577,15 +577,29 @@ public:
         else
         {
             fill(visited.begin(), visited.end(), false);
-            parent.at(v->Number()) = -1;
+            fill(parent.begin(), parent.end(), -1);
             DFS_Spanning_Tree_1(v, visited, parent);
         }
     }
 
     void DFS_Spanning_Tree_1(Vertex *v, std::vector<bool> &visited, std::vector<int> &parent)
     {
-        visited.at(v->Number()) = true;
-        
+        int vertex = v->Number();
+        visited.at(vertex) = true;
+
+        Iterator<Edge> &iterator = EmanatingEdgesIter(vertex);
+        while (!iterator.IsDone())
+        {
+            Vertex *u = (*iterator).V1();
+            if (visited[u->Number()] == false)
+            {
+                parent[u->Number()] = vertex;
+                cout << "Rodzicem " << u->Number() << " jest " << vertex << endl;
+                DFS_Spanning_Tree_1(u, visited, parent);
+            }
+            ++iterator;
+        }
+        delete &iterator;
     }
 };
 
@@ -852,5 +866,29 @@ int main()
     cout << "Dodano krawedz (7, 0): " << endl;
     cout << ((graphDir.IsConnected() == 1) ? "\tGraf jest spojny\n" : "\tGraf nie jest spojny\n");
 
+    // drzewo rozpinajaca
+    cout << "\nDrzewo rozpinajace: " << endl;
+    GraphAsMatrix *graph_roz = new GraphAsMatrix(10, false);
+
+    graph_roz->AddEdge(0, 1);
+    graph_roz->AddEdge(1, 2);
+    graph_roz->AddEdge(2, 3);
+    graph_roz->AddEdge(3, 4);
+    graph_roz->AddEdge(3, 7);
+    graph_roz->AddEdge(4, 5);
+    graph_roz->AddEdge(5, 9);
+    graph_roz->AddEdge(9, 9);
+    graph_roz->AddEdge(6, 8);
+    graph_roz->AddEdge(8, 6);
+    graph_roz->AddEdge(0, 8);
+
+    graph_roz->DFS_Spanning_Tree(graph_roz->SelectVertex(0));
+    cout << endl;
+
+    graph_roz->AddEdge(3, 9);
+    graph_roz->AddEdge(5, 7);
+    graph_roz->AddEdge(9, 8);
+    graph_roz->DFS_Spanning_Tree(graph_roz->SelectVertex(0));
+    cout << endl;
     return 0;
 }
