@@ -326,7 +326,6 @@ public:
         fill(visited.begin(), visited.end(), false);
 
         // ustawiam tablice parent na false (Brak rodzica)
-        //  ustawiam tablice odwiedzonych wierzcholkow na false
         parent.resize(n);
         fill(parent.begin(), parent.end(), -1);
     };
